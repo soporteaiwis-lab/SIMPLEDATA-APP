@@ -33,7 +33,8 @@ const processData = (usersData: any, skillsData: any, progressData: any, videosD
   const users: User[] = [];
   const videos: VideoMap = {};
 
-  // 1. Process Skills
+  // 1. Process Skills (Habilidades2)
+  // Assuming columns: A:Email, D:Prompting, E:Tools, F:Analysis
   const skillsMap: Record<string, any> = {};
   if (skillsData.values) {
     skillsData.values.slice(1).forEach((row: string[]) => {
@@ -47,7 +48,8 @@ const processData = (usersData: any, skillsData: any, progressData: any, videosD
     });
   }
 
-  // 2. Process Progress (Stats & JSON)
+  // 2. Process Progress (Progreso2)
+  // Assuming columns: A:Email, F:Completed Count, H:JSON Data
   const progressMap: Record<string, any> = {};
   const progressJsonMap: Record<string, any> = {}; 
   
@@ -57,14 +59,13 @@ const processData = (usersData: any, skillsData: any, progressData: any, videosD
         // General stats
         progressMap[row[0]] = {
           completed: parseInt(row[5]) || 0,
-          total: 20 
+          total: 20 // Fixed total
         };
         
-        // Detailed JSON (Column H = index 7)
+        // Detailed JSON from column H (index 7)
         if (row[7]) {
            try {
              const rawJson = row[7];
-             // Parse JSON directly. It should look like {"s1-lunes": true, ...}
              progressJsonMap[row[0]] = JSON.parse(rawJson);
            } catch (e) {
              console.warn(`Failed to parse progress JSON for user ${row[0]}`);
@@ -74,7 +75,7 @@ const processData = (usersData: any, skillsData: any, progressData: any, videosD
     });
   }
 
-  // 3. Process Users
+  // 3. Process Users (Usuarios2)
   if (usersData.values) {
     usersData.values.slice(1).forEach((row: string[], index: number) => {
       if (row[0] && row[1]) {
@@ -93,15 +94,14 @@ const processData = (usersData: any, skillsData: any, progressData: any, videosD
     });
   }
 
-  // 4. Process Videos
+  // 4. Process Videos (Videos2)
   if (videosData.values) {
     videosData.values.slice(1).forEach((row: string[]) => {
-      // row[1] = week (number), row[2] = day (string)
+      // row[1] = week (number), row[2] = day (string), row[3] = url
       if (row[1] && row[2]) {
         const week = row[1];
         const day = row[2].trim().toLowerCase();
         const url = row[3] || '';
-        // Map key: "1-lunes"
         videos[`${week}-${day}`] = url;
       }
     });
@@ -111,7 +111,6 @@ const processData = (usersData: any, skillsData: any, progressData: any, videosD
 };
 
 export const saveUserProgress = async (user: User, progressJson: Record<string, boolean>) => {
-  // Calculate completed count based on true values in the JSON
   const completadas = Object.values(progressJson).filter(v => v === true).length;
   const jsonString = JSON.stringify(progressJson);
 
@@ -121,7 +120,7 @@ export const saveUserProgress = async (user: User, progressJson: Record<string, 
     // Send to Google Apps Script
     await fetch(APPS_SCRIPT_URL, {
         method: 'POST',
-        mode: 'no-cors', // Important for GAS
+        mode: 'no-cors',
         headers: {
             'Content-Type': 'application/json',
         },
