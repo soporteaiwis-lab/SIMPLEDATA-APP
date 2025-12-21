@@ -13,7 +13,7 @@ const StatCard: React.FC<{ label: string; value: string; icon: React.ReactNode; 
     </div>
     <div className="relative z-10">
         <div className={`w-12 h-12 rounded-xl flex items-center justify-center mb-4 ${color} bg-opacity-20 text-white`}>
-            {React.cloneElement(icon as React.ReactElement, { size: 24, className: 'opacity-100' })}
+            {React.isValidElement(icon) ? React.cloneElement(icon as React.ReactElement<any>, { size: 24, className: 'opacity-100' }) : icon}
         </div>
         <p className="text-slate-400 text-sm font-medium">{label}</p>
         <h3 className="text-2xl font-bold text-white mt-1">{value}</h3>
